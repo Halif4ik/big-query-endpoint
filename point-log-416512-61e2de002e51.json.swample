@@ -1,0 +1,13 @@
+{
+  "type": " ",
+  "project_id": "",
+  "private_key_id": "",
+  "private_key": "",
+  "client_email": "test-point@point-log-416512.iam.gserviceaccount.com",
+  "client_id": "110993492837476502461",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "",
+  "client_x509_cert_url": "",
+  "universe_domain": ""
+}
