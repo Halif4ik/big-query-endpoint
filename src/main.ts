@@ -19,8 +19,7 @@ import {DocumentBuilder, SwaggerModule} from '@nestjs/swagger';
    // Define the CORS options
    const corsOptions = {
       origin: [
-         'https://books-5n87.onrender.com/',
-         'http://localhost:3002',
+         process.env.HOST,
       ],
       methods: 'POST,GET',
       credentials: true, // Enable cookies and authentication headers

@@ -1,6 +1,6 @@
-import { BigQuery } from '@google-cloud/bigquery';
+import {BigQuery} from '@google-cloud/bigquery';
 
-export const bigquery = new BigQuery({
-  projectId: 'point-log-416512',
-  keyFilename: `./point-log-416512-61e2de002e51.json`,
+export const bigquery: BigQuery = new BigQuery({
+   projectId: process.env.PROJECT_ID,
+   keyFilename: process.env.KEY_FILENAME,
 });

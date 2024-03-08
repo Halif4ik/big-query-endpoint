@@ -2,9 +2,8 @@ import {HttpException, HttpStatus, Injectable, Logger} from '@nestjs/common';
 import {CreateLogPointDto} from './dto/create-log-point.dto';
 import {bigquery} from '../bigQuery.service';
 import {ConfigService} from '@nestjs/config';
-import {Dataset, SimpleQueryRowsResponse, TableResponse} from "@google-cloud/bigquery";
+import {Dataset, TableResponse} from "@google-cloud/bigquery";
 import {GeneralResponse} from "./interface/generalResponse.interface";
-import {json} from "express";
 
 @Injectable()
 export class LogPointService {
