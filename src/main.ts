@@ -19,7 +19,7 @@ import {DocumentBuilder, SwaggerModule} from '@nestjs/swagger';
    // Define the CORS options
    const corsOptions = {
       origin: [
-         process.env.HOST,
+         process.env.HOST_HTTP,
       ],
       methods: 'POST,GET',
       credentials: true, // Enable cookies and authentication headers

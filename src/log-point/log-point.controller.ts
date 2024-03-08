@@ -2,6 +2,7 @@ import {Controller, Get, Post, Body, HttpCode} from '@nestjs/common';
 import { LogPointService } from './log-point.service';
 import { CreateLogPointDto } from './dto/create-log-point.dto';
 import {ConfigService} from "@nestjs/config";
+import {GeneralResponse} from "./interface/generalResponse.interface";
 
 @Controller('openappevent')
 export class LogPointController {
@@ -12,7 +13,7 @@ export class LogPointController {
   //Permissions: All members
   @Post()
   @HttpCode(200)
-  createLog(@Body() createLogPointDto: CreateLogPointDto) {
+  createLog(@Body() createLogPointDto: CreateLogPointDto):Promise<GeneralResponse> {
     return this.logPointService.createLog(createLogPointDto);
   }
   //2.All users can get logs

@@ -1,9 +1,9 @@
 import {HttpException, HttpStatus, Injectable, Logger} from '@nestjs/common';
 import {CreateLogPointDto} from './dto/create-log-point.dto';
-import {bigquery} from '../bigQuery.service';
 import {ConfigService} from '@nestjs/config';
 import {Dataset, TableResponse} from "@google-cloud/bigquery";
 import {GeneralResponse} from "./interface/generalResponse.interface";
+import {BigQuery} from '@google-cloud/bigquery';
 
 @Injectable()
 export class LogPointService {
@@ -11,6 +11,10 @@ export class LogPointService {
    private readonly datasetId: string = this.configService.get<string>("DB_NAME");
    private readonly tableId: string = this.configService.get<string>('TABLE_NAME');
    private readonly limit: number = this.configService.get<number>('LIMIT');
+   private readonly bigquery: BigQuery = new BigQuery({
+      projectId: this.configService.get<string>('PROJECT_ID'),
+      keyFilename: this.configService.get<string>('KEY_FILENAME'),
+   });
 
    constructor(private readonly configService: ConfigService) {
    }
@@ -24,11 +28,12 @@ export class LogPointService {
       ];
 
       const options = {schema: schema};
-      const bigQDataSet: Dataset = bigquery.dataset(this.datasetId);
+      const bigQDataSet: Dataset = this.bigquery.dataset(this.datasetId);
       try {
          // Check if table exists before attempting to create it
          const [tableExists] = await bigQDataSet.table(this.tableId).exists();
          if (!tableExists) {
+            console.log('tableExists-',tableExists);
             const resp: TableResponse = await bigQDataSet.createTable(this.tableId, options);
             this.logger.log(`CreatedTable ${this.datasetId}.${this.tableId}`);
          }
@@ -47,7 +52,7 @@ export class LogPointService {
    // Execute Constructed the SQL query to insert data into the table
    private async insertData(createLogPointDto: CreateLogPointDto): Promise<void> {
       const {idUser, idDevice, os} = createLogPointDto;
-      await bigquery.query({
+      await this.bigquery.query({
          query: `INSERT INTO ${this.datasetId}.${this.tableId} (idUser, idDevice, os) VALUES ('${idUser}', '${idDevice}', '${os}')`,
          location: 'EU',
       });
@@ -82,7 +87,7 @@ export class LogPointService {
             query: query,
             location: 'EU',
          };
-         resp = await bigquery.query(options);
+         resp = await this.bigquery.query(options);
       } catch (error) {
          throw new HttpException(
              {
