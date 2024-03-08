@@ -1,8 +1,10 @@
-import {HttpStatus, Injectable, Logger} from '@nestjs/common';
+import {HttpException, HttpStatus, Injectable, Logger} from '@nestjs/common';
 import {CreateLogPointDto} from './dto/create-log-point.dto';
 import {bigquery} from '../bigQuery.service';
 import {ConfigService} from '@nestjs/config';
 import {Dataset, SimpleQueryRowsResponse, TableResponse} from "@google-cloud/bigquery";
+import {GeneralResponse} from "./interface/generalResponse.interface";
+import {json} from "express";
 
 @Injectable()
 export class LogPointService {
@@ -43,36 +45,37 @@ export class LogPointService {
       }
    }
 
+   // Execute Constructed the SQL query to insert data into the table
    private async insertData(createLogPointDto: CreateLogPointDto): Promise<void> {
-      const datasetId = 'pointDb';
-      const tableId = 'tableLogger';
-
       const {idUser, idDevice, os} = createLogPointDto;
-      // Execute Constructed the SQL query to insert data into the table
       await bigquery.query({
-         query: `INSERT INTO ${datasetId}.${tableId} (idUser, idDevice, os) VALUES ('${idUser}', '${idDevice}', '${os}')`,
+         query: `INSERT INTO ${this.datasetId}.${this.tableId} (idUser, idDevice, os) VALUES ('${idUser}', '${idDevice}', '${os}')`,
          location: 'EU',
       });
    }
 
-   async createLog(createLogPointDto: CreateLogPointDto) {
+   async createLog(createLogPointDto: CreateLogPointDto): Promise<GeneralResponse> {
       try {
          await this.createTableWithSchema();
-         // Insert data into the table
          await this.insertData(createLogPointDto);
       } catch (error) {
-         console.error(`In ERROR-` + error);
+         throw new HttpException(
+             {
+                "success": false,
+                "errors_message": error?.errors?.[0] || error,
+                "data": null
+             },
+             HttpStatus.BAD_REQUEST,
+         );
       }
       return {
-         status_code: HttpStatus.OK,
-         detail: {
-            idUser: createLogPointDto.idUser,
-         },
-         result: 'created',
-      };
+         "success": true,
+         "errors_message": null,
+         "data": "Successfully"
+      }
    }
 
-   async getLogs(): Promise<any> {
+   async getLogs(): Promise<GeneralResponse> {
       let resp = null;
       try {
          const query = `SELECT * FROM ${this.datasetId}.${this.tableId} LIMIT ${this.limit}`;
@@ -82,15 +85,19 @@ export class LogPointService {
          };
          resp = await bigquery.query(options);
       } catch (error) {
-         console.error(`ERROR Get-` + error);
+         throw new HttpException(
+             {
+                "success": false,
+                "errors_message": error?.errors?.[0] || error,
+                "data": null
+             },
+             HttpStatus.BAD_REQUEST,
+         );
       }
-
       return {
-         status_code: HttpStatus.OK,
-         detail: {
-            list: resp,
-         },
-         result: 'created',
-      };
+         "success": true,
+         "errors_message": null,
+         "data": JSON.stringify(resp) || null
+      }
    }
 }

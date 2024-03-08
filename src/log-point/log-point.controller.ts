@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import {Controller, Get, Post, Body, HttpCode} from '@nestjs/common';
 import { LogPointService } from './log-point.service';
 import { CreateLogPointDto } from './dto/create-log-point.dto';
 import {ConfigService} from "@nestjs/config";
@@ -11,6 +11,7 @@ export class LogPointController {
   //Endpoint: POST /api/openappevent
   //Permissions: All members
   @Post()
+  @HttpCode(200)
   createLog(@Body() createLogPointDto: CreateLogPointDto) {
     return this.logPointService.createLog(createLogPointDto);
   }
